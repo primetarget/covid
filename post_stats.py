@@ -45,6 +45,8 @@ rt_url = urls['rt']
 gen_bullet = cfg['generate_bullet']
 gen_line = cfg['generate_line']
 gen_graph = cfg['generate_xkcd_graph']
+gen_state_map = cfg['generate_state_map']
+gen_regional_map = cfg['generate_regional_map']
 
 latest_index = cfg['ar_covid_latest_index']
 new_data = False
@@ -441,18 +443,22 @@ if gen_bullet:
 if gen_line:
     generate_line(full_data)
 
-latest_data = data.set_index('mydate')
-max_date = latest_data.index.max()
-latest_data = data.set_index('mydate')
-latest_data = data[data['mydate'] == max_date]
-latest_data = latest_data[latest_data['county_nam'] != 'Arkansas_all_counties']
-min_cases = latest_data['Active_Cases_10k_Pop'].min()
-max_cases = latest_data['Active_Cases_10k_Pop'].max()
+if gen_state_map or gen_regional_map:
+    latest_data = data.set_index('mydate')
+    max_date = latest_data.index.max()
+    latest_data = data.set_index('mydate')
+    latest_data = data[data['mydate'] == max_date]
 
-generate_state_cloropleth(latest_data, county_boundaries, min_cases, max_cases)
+if gen_state_map:
+    latest_data = latest_data[latest_data['county_nam'] != 'Arkansas_all_counties']
+    min_cases = latest_data['Active_Cases_10k_Pop'].min()
+    max_cases = latest_data['Active_Cases_10k_Pop'].max()
 
-latest_data = latest_data[latest_data['county_nam'].isin(counties)]
-min_cases = latest_data['Active_Cases_10k_Pop'].min()
-max_cases = latest_data['Active_Cases_10k_Pop'].max()
+    generate_state_cloropleth(latest_data, county_boundaries, min_cases, max_cases)
 
-generate_state_cloropleth(latest_data, county_boundaries, min_cases, max_cases)
+if gen_regional_map:
+    latest_data = latest_data[latest_data['county_nam'].isin(counties)]
+    min_cases = latest_data['Active_Cases_10k_Pop'].min()
+    max_cases = latest_data['Active_Cases_10k_Pop'].max()
+
+    generate_state_cloropleth(latest_data, county_boundaries, min_cases, max_cases)
