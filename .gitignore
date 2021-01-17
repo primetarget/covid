@@ -23,6 +23,7 @@ dist/
 downloads/
 eggs/
 .eggs/
+generated_data/
 lib/
 lib64/
 parts/
