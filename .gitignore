@@ -4,6 +4,9 @@ credentials.json
 # Mac/OSX
 .DS_Store
 
+#local config backup
+config_old.yaml
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
