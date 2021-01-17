@@ -1,0 +1,24 @@
+ar_covid_latest_index: Saturday, Jan 16, 2021
+counties:
+- Union
+- Ouachita
+- Columbia
+- Calhoun
+- Bradley
+- Ashley
+generate_bullet: true
+generate_line: true
+generate_xkcd_graph: false
+group_uid: 515810702698017
+level: DEBUG
+logging: console
+post_negative_results: false
+post_to_facebook: false
+primary_county: Union
+send_email: true
+test_group_uid: 1035931633567987
+test_mode: true
+urls:
+  ar_covid: https://raw.githubusercontent.com/Arkansascovid/Main/master/master_file.csv
+  county_geojson: https://raw.githubusercontent.com/plotly/datasets/master/geojson-counties-fips.json
+  rt: https://d14wlfuexuxgcm.cloudfront.net/covid/rt.csv
