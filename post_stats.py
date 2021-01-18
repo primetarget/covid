@@ -302,7 +302,7 @@ def generate_county_narrative(data, county):
         direction = 'a decrease'
         difference = abs(difference)
 
-    header_msg = str(county).upper() + ' COUNTY'
+    header_msg = '\u2190 ' + str(county).upper() + ' COUNTY \u2192'
 
     active_cases_msg = u"There were {today} active cases in {county} County on {today_date}. This is {direction} of {difference} from the previous day's total of {yesterday}.".format(today = today, county = county, yesterday = yesterday, difference = difference, direction = direction, today_date = today_date)
     if difference == 0:
@@ -328,10 +328,10 @@ def generate_county_narrative(data, county):
     return msg
 
 def generate_positivity_explanation():
-    return u'* (The WHO recommends that rates of positivity in testing should remain at 5% or lower for at least 14 days before loosening restrictions.)\n\n'
+    return u'\u204d (The WHO recommends that rates of positivity in testing should remain at 5% or lower for at least 14 days before loosening restrictions.)\n\n'
 
 def generate_cfr_explanation():
-    return u'* (The case fatality ratio is the proportion of deaths from a certain disease compared to the total number of people diagnosed with the disease for a particular period. A CFR is conventionally expressed as a percentage and represents a measure of disease severity. A CFR can only be considered final when all the cases have been resolved [either died or recovered]. The preliminary CFR, for example, during an outbreak with a high daily increase and long resolution time would be substantially lower than the final CFR.)\n\n'
+    return u'\u204d (The case fatality ratio is the proportion of deaths from a certain disease compared to the total number of people diagnosed with the disease for a particular period. A CFR is conventionally expressed as a percentage and represents a measure of disease severity. A CFR can only be considered final when all the cases have been resolved [either died or recovered]. The preliminary CFR, for example, during an outbreak with a high daily increase and long resolution time would be substantially lower than the final CFR.)\n\n'
 
 def generate_rt_narrative():
     rt_msg = ""
@@ -346,7 +346,7 @@ def generate_rt_narrative():
     rt_mean = "{:.3}".format(float(latest_rt_row['mean']))
     rt_date = latest_rt_row['date']
 
-    rt_msg = u"The effective reproduction rate (R\u209c) in the State on {rt_date} was {rt_mean}.\n(Values over 1.0 mean we should expect more cases in the State, values under 1.0 mean we should expect fewer.)\n\n".format(rt_date=rt_date, rt_mean=rt_mean)
+    rt_msg = u"The effective reproduction rate (R\u209c) in the State on {rt_date} was {rt_mean}.\n(Values over 1.0 mean we should expect more cases in the State, values under 1.0 mean we should expect fewer.)\n\n\n".format(rt_date=rt_date, rt_mean=rt_mean)
     return rt_msg
 
 def post_to_facebook(group, msg):
