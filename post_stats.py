@@ -42,6 +42,8 @@ urls = cfg['urls']
 master_url = urls['ar_covid']
 rt_url = urls['rt']
 
+who_t = float(urls['who_threshold'])
+
 gen_bullet = cfg['generate_bullet']
 gen_line = cfg['generate_line']
 gen_graph = cfg['generate_xkcd_graph']
@@ -88,16 +90,16 @@ def generate_line(df):
 
     fig.add_shape(type='line',
                 x0=0,
-                y0=.05,
+                y0=who_t,
                 x1=1,
-                y1=.05,
-                line=dict(color='Red',dash="dot", width=5),
+                y1=who_t,
+                line=dict(color='Red',dash="dot", width=4),
                 xref='paper',
                 yref='y')
 
     fig.add_annotation(text="WHO Recommended Threshold",
                   xref="paper", yref="y",
-                  x=1, y=0.052, showarrow=False,
+                  x=1, y=who_t + .002, showarrow=False,
                   font=dict(color="red",size=10)
                   )
 
@@ -122,7 +124,7 @@ def generate_bullet(df):
         pp_last_fourteen_days = row1['14d_pp']
         fig.add_trace(go.Indicator(
             mode = "number+gauge+delta", value = pp_last_fourteen_days,
-            delta = {'reference': .05},
+            delta = {'reference': who_t},
             domain = {'x': [0.1, 1], 'y': [y1, y2]},
             title = {'text': str(county) + " County"},
             gauge = {
@@ -131,7 +133,7 @@ def generate_bullet(df):
                 'threshold': {
                     'line': {'color': "red", 'width': 2},
                     'thickness': 1,
-                    'value': .05},
+                    'value': who_t},
                 'bar': {'color': "black"},
                 'bgcolor': 'LightGrey'}))
         y1 += 0.12
@@ -237,7 +239,7 @@ def generate_state_cloropleth(latest_data, county_boundaries, min_cases, max_cas
         title='Active Cases per 10k of Population (' + max_date.strftime('%A, %b %d, %Y') + ')',
         hover_name='county_nam',
         labels={'Active_Cases_10k_Pop': 'Active Cases/10k Population'})
-    fig.update_layout(margin={"r":10,"t":30,"l":10,"b":10})
+    fig.update_layout(margin={"r":10,"t":40,"l":10,"b":10})
     fig.show()
 
 def calculate_positivity_rate(data, county, period):

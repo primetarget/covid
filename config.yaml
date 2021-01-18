@@ -24,3 +24,4 @@ urls:
   ar_covid: https://raw.githubusercontent.com/Arkansascovid/Main/master/master_file.csv
   county_geojson: https://raw.githubusercontent.com/plotly/datasets/master/geojson-counties-fips.json
   rt: https://d14wlfuexuxgcm.cloudfront.net/covid/rt.csv
+who_threshhold: 0.05
