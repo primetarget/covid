@@ -2,6 +2,8 @@ import json
 import logging
 import yaml
 import pandas as pd
+import numpy as np
+import seaborn
 import matplotlib.pyplot as plt
 import plotly.graph_objects as go
 import plotly.express as px
@@ -42,7 +44,7 @@ urls = cfg['urls']
 master_url = urls['ar_covid']
 rt_url = urls['rt']
 
-who_t = float(urls['who_threshold'])
+who_t = float(cfg['who_threshold'])
 
 gen_bullet = cfg['generate_bullet']
 gen_line = cfg['generate_line']
@@ -399,6 +401,21 @@ for county in counties:
     ppdf = calculate_positivity_rate(data, county, 14)
     frames.append(ppdf)
 full_data = pd.concat(frames)
+
+#initial experiments with Pearson Correlation
+df_pivot = full_data[full_data['mydate'] > '9/12/2020'].pivot('mydate','county_nam','14d_pp').reset_index()
+corr_df = df_pivot.corr(method='pearson')
+#reset symbol as index (rather than 0-X)
+corr_df.head().reset_index()
+logging.debug(corr_df.head(10))
+#take the bottom triangle since it repeats itself
+mask = np.zeros_like(corr_df)
+mask[np.triu_indices_from(mask)] = True
+#generate plot
+seaborn.heatmap(corr_df, cmap='RdYlGn', vmax=1.0, vmin=-1.0 , mask = mask, linewidths=2.5)
+plt.yticks(rotation=0)
+plt.xticks(rotation=90)
+plt.show()
 
 # beginnings of grouping to calculate regional statistics and to do analysis on county border interactions
 frames = []

@@ -6,10 +6,10 @@ counties:
 - Calhoun
 - Bradley
 - Ashley
-generate_bullet: true
-generate_line: true
-generate_regional_map: true
-generate_state_map: true
+generate_bullet: false
+generate_line: false
+generate_regional_map: false
+generate_state_map: false
 generate_xkcd_graph: false
 group_uid: 515810702698017
 level: DEBUG
@@ -17,11 +17,11 @@ logging: console
 post_negative_results: false
 post_to_facebook: false
 primary_county: Union
-send_email: true
+send_email: false
 test_group_uid: 1035931633567987
 test_mode: true
 urls:
   ar_covid: https://raw.githubusercontent.com/Arkansascovid/Main/master/master_file.csv
   county_geojson: https://raw.githubusercontent.com/plotly/datasets/master/geojson-counties-fips.json
   rt: https://d14wlfuexuxgcm.cloudfront.net/covid/rt.csv
-who_threshhold: 0.05
+who_threshold: 0.05
