@@ -1,4 +1,4 @@
-ar_covid_latest_index: Sunday, Jan 17, 2021
+ar_covid_latest_index: Sunday, Jan 24, 2021
 counties:
 - Union
 - Ouachita
@@ -6,10 +6,11 @@ counties:
 - Calhoun
 - Bradley
 - Ashley
-generate_bullet: false
-generate_line: false
-generate_regional_map: false
-generate_state_map: false
+generate_bullet: true
+generate_line: true
+generate_matrix: false
+generate_regional_map: true
+generate_state_map: true
 generate_xkcd_graph: false
 group_uid: 515810702698017
 level: DEBUG
@@ -17,7 +18,7 @@ logging: console
 post_negative_results: false
 post_to_facebook: false
 primary_county: Union
-send_email: false
+send_email: true
 test_group_uid: 1035931633567987
 test_mode: true
 urls:

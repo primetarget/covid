@@ -52,6 +52,8 @@ gen_graph = cfg['generate_xkcd_graph']
 gen_state_map = cfg['generate_state_map']
 gen_regional_map = cfg['generate_regional_map']
 
+gen_matrix = cfg['generate_matrix']
+
 latest_index = cfg['ar_covid_latest_index']
 new_data = False
 post_negative_results = cfg['post_negative_results']
@@ -301,12 +303,16 @@ def generate_county_narrative(data, county):
 
     difference = today - yesterday
     direction = 'an increase'
+    arrow = '\u2191'
 
     if difference < 0:
         direction = 'a decrease'
         difference = abs(difference)
+        arrow = '\u2193'
+    elif difference == 0:
+        arrow = '\u2194'
 
-    header_msg = '\u2190 ' + str(county).upper() + ' COUNTY \u2192'
+    header_msg = arrow + ' ' + str(county).upper() + ' COUNTY ' + arrow
 
     active_cases_msg = u"There were {today} active cases in {county} County on {today_date}. This is {direction} of {difference} from the previous day's total of {yesterday}.".format(today = today, county = county, yesterday = yesterday, difference = difference, direction = direction, today_date = today_date)
     if difference == 0:
@@ -350,7 +356,7 @@ def generate_rt_narrative():
     rt_mean = "{:.3}".format(float(latest_rt_row['mean']))
     rt_date = latest_rt_row['date']
 
-    rt_msg = u"The effective reproduction rate (R\u209c) in the State on {rt_date} was {rt_mean}.\n(Values over 1.0 mean we should expect more cases in the State, values under 1.0 mean we should expect fewer.)\n\n\n".format(rt_date=rt_date, rt_mean=rt_mean)
+    rt_msg = u"The effective reproduction rate (R\u209c) in the State on {rt_date} was {rt_mean}. (Values over 1.0 mean we should expect more cases in the State, values under 1.0 mean we should expect fewer.)\n\n\n".format(rt_date=rt_date, rt_mean=rt_mean)
     return rt_msg
 
 def post_to_facebook(group, msg):
@@ -403,19 +409,20 @@ for county in counties:
 full_data = pd.concat(frames)
 
 #initial experiments with Pearson Correlation
-df_pivot = full_data[full_data['mydate'] > '9/12/2020'].pivot('mydate','county_nam','14d_pp').reset_index()
-corr_df = df_pivot.corr(method='pearson')
-#reset symbol as index (rather than 0-X)
-corr_df.head().reset_index()
-logging.debug(corr_df.head(10))
-#take the bottom triangle since it repeats itself
-mask = np.zeros_like(corr_df)
-mask[np.triu_indices_from(mask)] = True
-#generate plot
-seaborn.heatmap(corr_df, cmap='RdYlGn', vmax=1.0, vmin=-1.0 , mask = mask, linewidths=2.5)
-plt.yticks(rotation=0)
-plt.xticks(rotation=90)
-plt.show()
+if gen_matrix:
+    df_pivot = full_data[full_data['mydate'] > '9/12/2020'].pivot('mydate','county_nam','14d_pp').reset_index()
+    corr_df = df_pivot.corr(method='pearson')
+    #reset symbol as index (rather than 0-X)
+    corr_df.head().reset_index()
+    logging.debug(corr_df.head(10))
+    #take the bottom triangle since it repeats itself
+    mask = np.zeros_like(corr_df)
+    mask[np.triu_indices_from(mask)] = True
+    #generate plot
+    seaborn.heatmap(corr_df, cmap='RdYlGn', vmax=1.0, vmin=-1.0 , mask = mask, linewidths=2.5)
+    plt.yticks(rotation=0)
+    plt.xticks(rotation=90)
+    plt.show()
 
 # beginnings of grouping to calculate regional statistics and to do analysis on county border interactions
 frames = []
@@ -426,7 +433,7 @@ for county in counties:
 grouped_data = pd.concat(frames)
 
 county_text = u', '.join(counties)
-summary_msg = u"Statistics Summary for " + county_text + "\n" + now.strftime('%A, %b %d, %Y') + '\n\n'
+summary_msg = u"Statistics Summary for " + county_text + " Counties (" + now.strftime('%A, %b %d, %Y') + ')\n\n'
 
 for county in counties:
     county_msg = generate_county_narrative(full_data, county)
