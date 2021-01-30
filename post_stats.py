@@ -7,6 +7,7 @@ import seaborn
 import matplotlib.pyplot as plt
 import plotly.graph_objects as go
 import plotly.express as px
+from plotly.subplots import make_subplots
 import io
 import requests
 from facebook import GraphAPI
@@ -51,6 +52,7 @@ gen_line = cfg['generate_line']
 gen_graph = cfg['generate_xkcd_graph']
 gen_state_map = cfg['generate_state_map']
 gen_regional_map = cfg['generate_regional_map']
+gen_cases_graph = cfg['generate_cases_graph']
 
 gen_matrix = cfg['generate_matrix']
 
@@ -244,6 +246,69 @@ def generate_state_cloropleth(latest_data, county_boundaries, min_cases, max_cas
         hover_name='county_nam',
         labels={'Active_Cases_10k_Pop': 'Active Cases/10k Population'})
     fig.update_layout(margin={"r":10,"t":40,"l":10,"b":10})
+    fig.show()
+
+def generate_active_cases_graph(data, counties):
+    data = data[(data['mydate'] > '2020-09-13')]
+    filtered_data = data[data['county_nam'].isin(counties)]
+    grouped_df = filtered_data.groupby(['mydate']).agg(
+        {
+             'active_cases':sum,
+             'pp': "mean"
+        }
+    ).reset_index()
+
+    county_text = u', '.join(counties)
+
+    max_index = grouped_df.index.max()
+    max_date = max(grouped_df['mydate'])
+    last_pp = grouped_df.loc[max_index]['pp']
+    last_active = grouped_df.loc[max_index]['active_cases']
+
+    low_pp = min(grouped_df['pp'])
+    low_pp_index = grouped_df['pp'].idxmin()
+    low_pp_date = grouped_df.loc[low_pp_index]['mydate']
+
+    max_active = max(grouped_df['active_cases'])
+    max_active_index = grouped_df['active_cases'].idxmax()
+    max_active_date = grouped_df.loc[max_active_index]['mydate']
+
+
+    grouped_df['county_nam'] = 'All Counties'
+    grouped_df = grouped_df.sort_values(by=['mydate'], ascending=False)
+
+    # Create figure with secondary y-axis
+    fig = make_subplots(specs=[[{"secondary_y": True}]])
+    # Add traces
+    fig.add_trace(
+        go.Bar(
+            x=grouped_df['mydate'],
+            y=grouped_df['active_cases'],
+            name="Active Cases",
+            marker=dict(color='rgba(100, 149, 237, .8)')),
+        secondary_y=False)
+
+    fig.add_trace(
+        go.Scatter(x=grouped_df['mydate'],
+                   y=grouped_df['pp'],
+                   name="Test Positivity",
+                   mode = 'lines',
+                   line=dict(shape='linear', color='rgba(237, 188, 100, 1)', width=4)),
+        secondary_y=True)
+
+    fig.update_xaxes(title_text="Date")
+    fig.update_yaxes(title_text="Active Cases", secondary_y=False)
+    fig.update_yaxes(title_text="Test Positivity Rate", secondary_y=True)
+
+    fig.update_layout(title='Active Cases, Test Positivity Rate, Six County Region <br>' + county_text,
+                      showlegend=True,
+                      yaxis2_tickformat = '.2%',
+                      font=dict(size=16))
+
+    fig.add_annotation(x=max_date, y=last_pp, text="{:.2%}".format(last_pp), xanchor='auto', xref="x", yref="y2", bgcolor='rgba(232, 168, 54, 1)', font=dict(color='Black'))
+    fig.add_annotation(x=low_pp_date, y=low_pp, text="Low Positivity Rate: " + "{:.2%}".format(low_pp), xanchor='auto', xref="x", yref="y2", bgcolor='rgba(232, 168, 54, 1)', font=dict(color='Black'))
+    fig.add_annotation(x=max_date, y=last_active, text=str(last_active), xanchor='auto', xref="x", yref="y", bgcolor='rgba(54, 118, 232, 1)', font=dict(color='Ivory'))
+    fig.add_annotation(x=max_active_date, y=max_active, text='Max Active Cases: ' + str(max_active), xanchor='auto', xref="x", yref="y", bgcolor='rgba(54, 118, 232, 1)', font=dict(color='Ivory'))
     fig.show()
 
 def calculate_positivity_rate(data, county, period):
@@ -464,27 +529,31 @@ if email and (new_data or post_negative_results):
 
 logging.info('post_stats complete')
 
-if gen_bullet:
-    generate_bullet(full_data)
-if gen_line:
-    generate_line(full_data)
+if new_data:
+    if gen_bullet:
+        generate_bullet(full_data)
+    if gen_line:
+        generate_line(full_data)
 
-if gen_state_map or gen_regional_map:
-    latest_data = data.set_index('mydate')
-    max_date = latest_data.index.max()
-    latest_data = data.set_index('mydate')
-    latest_data = data[data['mydate'] == max_date]
+    if gen_state_map or gen_regional_map:
+        latest_data = data.set_index('mydate')
+        max_date = latest_data.index.max()
+        latest_data = data.set_index('mydate')
+        latest_data = data[data['mydate'] == max_date]
 
-if gen_state_map:
-    latest_data = latest_data[latest_data['county_nam'] != 'Arkansas_all_counties']
-    min_cases = latest_data['Active_Cases_10k_Pop'].min()
-    max_cases = latest_data['Active_Cases_10k_Pop'].max()
+    if gen_state_map:
+        latest_data = latest_data[latest_data['county_nam'] != 'Arkansas_all_counties']
+        min_cases = latest_data['Active_Cases_10k_Pop'].min()
+        max_cases = latest_data['Active_Cases_10k_Pop'].max()
 
-    generate_state_cloropleth(latest_data, county_boundaries, min_cases, max_cases)
+        generate_state_cloropleth(latest_data, county_boundaries, min_cases, max_cases)
 
-if gen_regional_map:
-    latest_data = latest_data[latest_data['county_nam'].isin(counties)]
-    min_cases = latest_data['Active_Cases_10k_Pop'].min()
-    max_cases = latest_data['Active_Cases_10k_Pop'].max()
+    if gen_regional_map:
+        latest_data = latest_data[latest_data['county_nam'].isin(counties)]
+        min_cases = latest_data['Active_Cases_10k_Pop'].min()
+        max_cases = latest_data['Active_Cases_10k_Pop'].max()
 
-    generate_state_cloropleth(latest_data, county_boundaries, min_cases, max_cases)
+        generate_state_cloropleth(latest_data, county_boundaries, min_cases, max_cases)
+
+    if gen_cases_graph:
+        generate_active_cases_graph(full_data, counties)

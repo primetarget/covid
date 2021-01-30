@@ -1,4 +1,4 @@
-ar_covid_latest_index: Sunday, Jan 24, 2021
+ar_covid_latest_index: Friday, Jan 29, 2021
 counties:
 - Union
 - Ouachita
@@ -12,6 +12,7 @@ generate_matrix: false
 generate_regional_map: true
 generate_state_map: true
 generate_xkcd_graph: false
+generate_cases_graph: true
 group_uid: 515810702698017
 level: DEBUG
 logging: console
